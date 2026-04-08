@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
+import emailjs from '@emailjs/browser';
 import { 
   Stethoscope, 
   Activity, 
@@ -21,12 +22,56 @@ import {
   Microscope,
   HeartPulse,
   Dna,
-  CheckCircle2
+  CheckCircle2,
+  Navigation,
+  Instagram,
+  Linkedin,
+  Facebook,
+  Loader2
 } from 'lucide-react';
 
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formRef.current) return;
+
+    setFormStatus('loading');
+
+    try {
+      // Note: These IDs should be configured in EmailJS dashboard
+      const serviceId = (import.meta as any).env.VITE_EMAILJS_SERVICE_ID || 'service_default';
+      const templateId = (import.meta as any).env.VITE_EMAILJS_TEMPLATE_ID || 'template_default';
+      const publicKey = (import.meta as any).env.VITE_EMAILJS_PUBLIC_KEY;
+
+      if (!publicKey) {
+        throw new Error('EmailJS Public Key is missing');
+      }
+
+      await emailjs.sendForm(serviceId, templateId, formRef.current, publicKey);
+      
+      setFormStatus('success');
+      formRef.current.reset();
+      
+      setTimeout(() => setFormStatus('idle'), 5000);
+    } catch (error) {
+      console.error('Error sending email:', error);
+      setFormStatus('error');
+      setTimeout(() => setFormStatus('idle'), 5000);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -54,35 +99,95 @@ export default function App() {
   return (
     <div className="relative min-h-screen">
       {/* Navbar */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/90 backdrop-blur-md shadow-sm py-4' : 'bg-transparent py-6'}`}>
-        <div className="container mx-auto px-6 flex justify-between items-center">
-          <a href="#home" className="flex flex-col">
-            <span className={`font-display font-bold text-xl tracking-tight ${scrolled ? 'text-primary-800' : 'text-primary-900'}`}>DR. HONÓRIO ONOFRE</span>
-            <span className={`text-[10px] uppercase tracking-[0.2em] font-medium ${scrolled ? 'text-slate-500' : 'text-slate-600'}`}>Cirurgião Especialista</span>
+      <nav 
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${
+          scrolled 
+            ? 'py-3 shadow-[0_4px_30px_rgba(0,0,0,0.03)] border-b border-white/20' 
+            : 'py-6 bg-transparent'
+        }`}
+      >
+        {/* Animated Background Lighting Effect */}
+        <div className={`absolute inset-0 transition-opacity duration-1000 ${scrolled ? 'opacity-100' : 'opacity-0'}`}>
+          <div className="absolute inset-0 bg-white/70 backdrop-blur-xl" />
+          <div className="absolute inset-0 bg-gradient-to-r from-medical-50/30 via-white/40 to-medical-50/30" />
+          
+          {/* Soft Glow Animation */}
+          <motion.div 
+            animate={{ 
+              opacity: [0.4, 0.7, 0.4],
+              scale: [1, 1.1, 1],
+              x: ['-10%', '10%', '-10%']
+            }}
+            transition={{ 
+              duration: 10, 
+              repeat: Infinity, 
+              ease: "easeInOut" 
+            }}
+            className="absolute top-[-50%] left-[20%] w-[60%] h-[200%] bg-accent-400/10 blur-[100px] rounded-full pointer-events-none"
+          />
+        </div>
+
+        <div className="container mx-auto px-6 flex justify-between items-center relative z-10">
+          <a href="#home" className="flex flex-col group">
+            <span className="font-display font-bold text-xl tracking-tight text-medical-900 group-hover:text-accent-600 transition-colors duration-500">
+              DR. HONÓRIO ONOFRE
+            </span>
+            <span className={`text-[9px] uppercase tracking-[0.3em] font-bold transition-all duration-500 ${scrolled ? 'text-accent-500' : 'text-medical-500'}`}>
+              Cirurgião Especialista
+            </span>
           </a>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-1">
             {navLinks.map((link) => (
               <a 
                 key={link.name} 
                 href={link.href} 
-                className={`text-sm font-medium transition-colors hover:text-primary-600 ${scrolled ? 'text-slate-600' : 'text-slate-700'}`}
+                className="relative px-5 py-2 text-[13px] font-bold text-medical-600 hover:text-accent-600 transition-all duration-300 tracking-wide group"
               >
-                {link.name}
+                <span className="relative z-10">{link.name}</span>
+                <motion.span 
+                  className="absolute inset-0 bg-medical-50/50 rounded-full -z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  layoutId="navHover"
+                />
               </a>
             ))}
-            <a 
-              href="#contact" 
-              className="bg-primary-700 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-primary-800 transition-all shadow-md hover:shadow-lg"
-            >
-              Agendar Consulta
-            </a>
+            <div className="pl-4">
+              <a 
+                href="#contact" 
+                className="bg-medical-900 text-white px-8 py-3 rounded-full text-[13px] font-bold hover:bg-accent-600 transition-all duration-500 shadow-lg shadow-medical-900/10 hover:shadow-accent-500/20 active:scale-95"
+              >
+                Agendar Consulta
+              </a>
+            </div>
           </div>
 
           {/* Mobile Menu Toggle */}
-          <button className="md:hidden text-slate-800" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          <button 
+            className="md:hidden text-medical-900 p-2 relative z-50" 
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <AnimatePresence mode="wait">
+              {isMenuOpen ? (
+                <motion.div
+                  key="close"
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                >
+                  <X size={24} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="menu"
+                  initial={{ rotate: 90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: -90, opacity: 0 }}
+                >
+                  <Menu size={24} />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </button>
         </div>
 
@@ -90,29 +195,36 @@ export default function App() {
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="absolute top-full left-0 right-0 bg-white shadow-xl border-t border-slate-100 md:hidden"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute top-0 left-0 right-0 bg-white/95 backdrop-blur-2xl border-b border-medical-100 md:hidden overflow-hidden z-40 pt-24"
             >
-              <div className="flex flex-col p-6 space-y-4">
-                {navLinks.map((link) => (
-                  <a 
+              <div className="flex flex-col p-8 space-y-4">
+                {navLinks.map((link, index) => (
+                  <motion.a 
                     key={link.name} 
                     href={link.href} 
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
                     onClick={() => setIsMenuOpen(false)}
-                    className="text-slate-600 font-medium hover:text-primary-600 transition-colors"
+                    className="text-2xl font-bold text-medical-900 hover:text-accent-600 transition-colors py-2 border-b border-medical-50 last:border-0"
                   >
                     {link.name}
-                  </a>
+                  </motion.a>
                 ))}
-                <a 
-                  href="#contact" 
+                <motion.a
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  href="#contact"
                   onClick={() => setIsMenuOpen(false)}
-                  className="bg-primary-700 text-white px-6 py-3 rounded-xl text-center font-semibold"
+                  className="mt-6 bg-medical-900 text-white p-5 rounded-2xl text-center font-bold text-lg shadow-xl shadow-medical-900/20"
                 >
                   Agendar Consulta
-                </a>
+                </motion.a>
               </div>
             </motion.div>
           )}
@@ -120,49 +232,54 @@ export default function App() {
       </nav>
 
       {/* Hero Section */}
-      <section id="home" className="relative h-screen flex items-center overflow-hidden">
+      <section id="home" className="relative h-screen flex items-center justify-center overflow-hidden bg-medical-50">
         <motion.div 
           style={{ y: heroY, opacity: heroOpacity }}
           className="absolute inset-0 z-0"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-medical-50/20 via-white/40 to-white z-10" />
           <img 
-            src="https://picsum.photos/seed/medical-surgery/1920/1080?blur=2" 
-            alt="Hospital Moderno" 
-            className="w-full h-full object-cover"
+            src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=1920" 
+            alt="Ambiente Médico Moderno" 
+            className="w-full h-full object-cover opacity-40"
             referrerPolicy="no-referrer"
           />
         </motion.div>
 
-        <div className="container mx-auto px-6 relative z-20">
+        <div className="container mx-auto px-6 relative z-20 text-center">
           <motion.div 
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="max-w-2xl"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+            className="max-w-4xl mx-auto"
           >
-            <span className="inline-block px-4 py-1.5 bg-primary-100 text-primary-800 rounded-full text-xs font-bold tracking-widest uppercase mb-6">
-              Excelência em Cirurgia
-            </span>
-            <h1 className="text-5xl md:text-7xl font-display font-bold text-slate-900 leading-[1.1] mb-6">
-              Dr. Honório Onofre de Medeiro Júnior
+            <motion.span 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+              className="inline-block px-5 py-1.5 bg-accent-50 text-accent-700 rounded-full text-[11px] font-bold tracking-[0.2em] uppercase mb-8"
+            >
+              Excelência e Inovação Cirúrgica
+            </motion.span>
+            <h1 className="text-5xl md:text-8xl font-display font-bold text-medical-900 leading-[1.05] mb-8 tracking-tight">
+              Dr. Honório <br className="hidden md:block" /> Onofre
             </h1>
-            <p className="text-xl text-slate-600 mb-10 leading-relaxed max-w-xl">
-              Cirurgia Geral | Cirurgia Laparoscópica | Cirurgia de Fígado e Vias Biliares
+            <p className="text-lg md:text-2xl text-medical-600 mb-12 leading-relaxed max-w-2xl mx-auto font-medium">
+              Cirurgia Geral, Laparoscópica e Especialista em Fígado e Vias Biliares.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-5 justify-center">
               <a 
                 href="#contact" 
-                className="bg-primary-700 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-primary-800 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                className="bg-medical-900 text-white px-10 py-4 rounded-full text-base font-bold hover:bg-accent-600 transition-all duration-500 shadow-xl hover:shadow-accent-500/20 flex items-center justify-center gap-3 active:scale-95"
               >
                 Agendar Consulta
-                <ChevronRight size={20} />
+                <ChevronRight size={18} />
               </a>
               <a 
                 href="#specialties" 
-                className="bg-white text-primary-800 border border-primary-100 px-8 py-4 rounded-full text-lg font-semibold hover:bg-primary-50 transition-all shadow-sm flex items-center justify-center"
+                className="glass text-medical-800 px-10 py-4 rounded-full text-base font-bold hover:bg-white transition-all duration-500 flex items-center justify-center active:scale-95"
               >
-                Conheça os Serviços
+                Ver Especialidades
               </a>
             </div>
           </motion.div>
@@ -170,77 +287,84 @@ export default function App() {
 
         {/* Scroll Indicator */}
         <motion.div 
-          animate={{ y: [0, 10, 0] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 text-slate-400"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5, duration: 1 }}
+          className="absolute bottom-12 left-1/2 -translate-x-1/2 z-20"
         >
-          <div className="w-6 h-10 border-2 border-slate-300 rounded-full flex justify-center p-1">
-            <div className="w-1 h-2 bg-slate-300 rounded-full" />
-          </div>
+          <motion.div 
+            animate={{ y: [0, 8, 0] }}
+            transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+            className="w-[26px] h-[42px] border-2 border-medical-200 rounded-full flex justify-center p-1.5"
+          >
+            <div className="w-1 h-1.5 bg-medical-300 rounded-full" />
+          </motion.div>
         </motion.div>
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-24 bg-white relative overflow-hidden">
+      <section id="about" className="py-32 bg-white relative overflow-hidden">
         <div className="container mx-auto px-6">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
+          <div className="grid lg:grid-cols-2 gap-24 items-center">
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, x: -40 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
               className="relative"
             >
-              <div className="absolute -top-6 -left-6 w-32 h-32 bg-primary-100 rounded-2xl -z-10" />
-              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-slate-100 rounded-2xl -z-10" />
-              <img 
-                src="https://picsum.photos/seed/doctor-portrait/800/1000" 
-                alt="Dr. Honório Onofre" 
-                className="rounded-2xl shadow-2xl w-full object-cover aspect-[4/5]"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute bottom-8 left-8 right-8 bg-white/90 backdrop-blur-md p-6 rounded-xl shadow-lg border border-white/20">
-                <div className="flex items-center gap-4">
-                  <div className="bg-primary-600 p-3 rounded-lg text-white">
-                    <ShieldCheck size={24} />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Registro Profissional</p>
-                    <p className="text-slate-900 font-bold">CRM: 232.127 | RQE: 105.960</p>
+              <div className="absolute -top-10 -left-10 w-64 h-64 bg-accent-50 rounded-full blur-3xl opacity-60 -z-10" />
+              <div className="relative overflow-hidden rounded-apple-lg shadow-2xl group">
+                <img 
+                  src="input_file_0.png" 
+                  alt="Dr. Honório Onofre" 
+                  className="w-full object-cover aspect-[4/5] object-top scale-105 group-hover:scale-110 transition-transform duration-1000"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute bottom-0 left-0 right-0 glass p-8 m-6 rounded-apple shadow-lg">
+                  <div className="flex items-center gap-5">
+                    <div className="bg-medical-900 p-3.5 rounded-2xl text-white shadow-lg">
+                      <ShieldCheck size={24} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-medical-500 uppercase tracking-widest mb-0.5">Registro Profissional</p>
+                      <p className="text-medical-900 font-bold text-lg">CRM 232.127 | RQE 105.960</p>
+                    </div>
                   </div>
                 </div>
               </div>
             </motion.div>
 
             <motion.div 
-              initial={{ opacity: 0, x: 50 }}
+              initial={{ opacity: 0, x: 40 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.8 }}
             >
-              <h2 className="text-sm font-bold text-primary-600 uppercase tracking-[0.2em] mb-4">Sobre o Médico</h2>
-              <h3 className="text-4xl font-display font-bold text-slate-900 mb-8 leading-tight">
-                Dedicação e Tecnologia para sua Saúde
-              </h3>
-              <div className="space-y-6 text-slate-600 leading-relaxed text-lg">
+              <span className="text-[11px] font-bold text-accent-600 uppercase tracking-[0.3em] mb-6 block">Trajetória e Dedicação</span>
+              <h2 className="text-4xl md:text-5xl font-display font-bold text-medical-900 mb-10 leading-tight tracking-tight">
+                Medicina de Precisão com <br /> Foco no Ser Humano
+              </h2>
+              <div className="space-y-8 text-medical-600 leading-relaxed text-lg font-medium">
                 <p>
-                  O Dr. Honório Onofre de Medeiro Júnior é médico especialista em cirurgia geral e procedimentos minimamente invasivos, com atuação nas áreas do fígado, vesícula biliar e aparelho digestivo.
+                  O Dr. Honório Onofre de Medeiro Júnior é referência em cirurgia geral e procedimentos minimamente invasivos, com expertise em patologias complexas do fígado e vias biliares.
                 </p>
                 <p>
-                  Com anos de experiência e constante atualização em técnicas cirúrgicas avançadas, seu foco está em proporcionar tratamentos precisos e uma recuperação ágil para seus pacientes.
+                  Sua prática clínica é pautada pela inovação tecnológica constante, buscando sempre as técnicas mais avançadas para garantir segurança máxima e recuperação acelerada.
                 </p>
                 <p>
-                  Acredita em um atendimento humanizado, onde a tecnologia de ponta se une ao cuidado individualizado para garantir os melhores resultados em cada procedimento.
+                  Mais do que técnica, o Dr. Honório prioriza o acolhimento, entendendo que cada paciente é único e merece um plano de cuidado personalizado e transparente.
                 </p>
               </div>
               
-              <div className="mt-10 grid grid-cols-2 gap-8">
+              <div className="mt-14 grid grid-cols-2 gap-12 border-t border-medical-100 pt-10">
                 <div>
-                  <p className="text-3xl font-display font-bold text-primary-700 mb-1">15+</p>
-                  <p className="text-sm text-slate-500 font-medium">Anos de Experiência</p>
+                  <p className="text-4xl font-display font-bold text-medical-900 mb-2 tracking-tighter">15+</p>
+                  <p className="text-xs text-medical-500 font-bold uppercase tracking-widest">Anos de Experiência</p>
                 </div>
                 <div>
-                  <p className="text-3xl font-display font-bold text-primary-700 mb-1">5k+</p>
-                  <p className="text-sm text-slate-500 font-medium">Procedimentos Realizados</p>
+                  <p className="text-4xl font-display font-bold text-medical-900 mb-2 tracking-tighter">5k+</p>
+                  <p className="text-xs text-medical-500 font-bold uppercase tracking-widest">Cirurgias Realizadas</p>
                 </div>
               </div>
             </motion.div>
@@ -249,13 +373,13 @@ export default function App() {
       </section>
 
       {/* Specialties Section */}
-      <section id="specialties" className="py-24 bg-slate-50">
+      <section id="specialties" className="py-32 bg-medical-50/50">
         <div className="container mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-sm font-bold text-primary-600 uppercase tracking-[0.2em] mb-4">Especialidades</h2>
-            <h3 className="text-4xl font-display font-bold text-slate-900 mb-6">Áreas de Atuação Especializada</h3>
-            <p className="text-slate-600 text-lg">
-              Tratamentos avançados para patologias do sistema digestivo e órgãos anexos, utilizando as melhores práticas da medicina moderna.
+          <div className="text-center max-w-3xl mx-auto mb-20">
+            <span className="text-[11px] font-bold text-accent-600 uppercase tracking-[0.3em] mb-6 block">Especialidades</span>
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-medical-900 mb-8 tracking-tight">Áreas de Atuação</h2>
+            <p className="text-medical-600 text-lg font-medium">
+              Soluções cirúrgicas avançadas com foco em mínima invasão e máxima eficácia terapêutica.
             </p>
           </div>
 
@@ -263,27 +387,31 @@ export default function App() {
             {[
               { 
                 title: 'Cirurgia do Fígado', 
-                desc: 'Procedimentos complexos e transplante hepático.', 
-                icon: <Activity className="w-8 h-8" />,
-                items: ['Transplante hepático', 'Ressecções tumorais']
+                desc: 'Tratamento de tumores, cistos e transplantes hepáticos.', 
+                icon: <Activity className="w-7 h-7" />,
+                items: ['Transplante hepático', 'Ressecções tumorais'],
+                img: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=400'
               },
               { 
                 title: 'Vesícula Biliar', 
-                desc: 'Tratamento cirúrgico de cálculos e inflamações.', 
-                icon: <Syringe className="w-8 h-8" />,
-                items: ['Colecistectomia', 'Vias biliares']
+                desc: 'Cirurgias para cálculos e doenças inflamatórias.', 
+                icon: <Syringe className="w-7 h-7" />,
+                items: ['Colecistectomia', 'Vias biliares'],
+                img: 'https://images.unsplash.com/photo-1579154235602-3c2c2446117b?auto=format&fit=crop&q=80&w=400'
               },
               { 
                 title: 'Pâncreas', 
-                desc: 'Cirurgias oncológicas e tratamentos de pancreatite.', 
-                icon: <Microscope className="w-8 h-8" />,
-                items: ['Duodenopancreatectomia', 'Cistos']
+                desc: 'Intervenções oncológicas e tratamentos complexos.', 
+                icon: <Microscope className="w-7 h-7" />,
+                items: ['Duodenopancreatectomia', 'Cistos'],
+                img: 'https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?auto=format&fit=crop&q=80&w=400'
               },
               { 
-                title: 'Doenças do Fígado', 
-                desc: 'Tratamento clínico e acompanhamento de hepatopatias.', 
-                icon: <HeartPulse className="w-8 h-8" />,
-                items: ['Esteatose', 'Cirrose', 'Hepatites']
+                title: 'Hepatologia', 
+                desc: 'Acompanhamento clínico de doenças do fígado.', 
+                icon: <HeartPulse className="w-7 h-7" />,
+                items: ['Esteatose', 'Cirrose', 'Hepatites'],
+                img: 'https://images.unsplash.com/photo-1505751172107-129658a2d716?auto=format&fit=crop&q=80&w=400'
               }
             ].map((spec, index) => (
               <motion.div 
@@ -291,29 +419,44 @@ export default function App() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-xl transition-all group"
+                transition={{ delay: index * 0.1, duration: 0.6 }}
+                className="bg-white p-0 rounded-apple shadow-sm border border-medical-100 hover:shadow-xl hover:shadow-medical-200/50 transition-all duration-500 group overflow-hidden"
               >
-                <div className="bg-primary-50 text-primary-600 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary-600 group-hover:text-white transition-colors">
-                  {spec.icon}
+                <div className="h-48 overflow-hidden">
+                  <img 
+                    src={spec.img} 
+                    alt={spec.title} 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    referrerPolicy="no-referrer"
+                  />
                 </div>
-                <h4 className="text-xl font-bold text-slate-900 mb-3">{spec.title}</h4>
-                <p className="text-slate-500 mb-6 text-sm">{spec.desc}</p>
-                <ul className="space-y-2">
-                  {spec.items.map(item => (
-                    <li key={item} className="flex items-center gap-2 text-xs font-semibold text-slate-600">
-                      <div className="w-1.5 h-1.5 bg-primary-400 rounded-full" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+                <div className="p-10">
+                  <div className="bg-medical-50 text-accent-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-medical-900 group-hover:text-white transition-all duration-500 shadow-sm">
+                    {spec.icon}
+                  </div>
+                  <h4 className="text-xl font-bold text-medical-900 mb-4 tracking-tight">{spec.title}</h4>
+                  <p className="text-medical-500 mb-8 text-sm leading-relaxed font-medium">{spec.desc}</p>
+                  <ul className="space-y-3">
+                    {spec.items.map(item => (
+                      <li key={item} className="flex items-center gap-3 text-[11px] font-bold text-medical-700 uppercase tracking-widest">
+                        <div className="w-1.5 h-1.5 bg-accent-500 rounded-full" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </motion.div>
             ))}
           </div>
 
-          <div className="mt-16 bg-white p-10 rounded-3xl shadow-sm border border-slate-100">
-            <h4 className="text-2xl font-bold text-slate-900 mb-8 text-center">Tratamento de Doenças do Fígado</h4>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-20 bg-white p-12 rounded-apple-lg shadow-sm border border-medical-100"
+          >
+            <h4 className="text-2xl font-bold text-medical-900 mb-12 text-center tracking-tight">Tratamento de Doenças Hepáticas</h4>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
               {[
                 'Esteatose Hepática',
                 'Fibrose Hepática',
@@ -322,108 +465,127 @@ export default function App() {
                 'Hepatite Autoimune',
                 'Hepatocarcinoma'
               ].map((disease) => (
-                <div key={disease} className="flex flex-col items-center text-center group">
-                  <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mb-3 group-hover:bg-primary-50 transition-colors">
-                    <Dna size={20} className="text-slate-400 group-hover:text-primary-600" />
+                <div key={disease} className="flex flex-col items-center text-center group cursor-default">
+                  <div className="w-14 h-14 bg-medical-50 rounded-full flex items-center justify-center mb-4 group-hover:bg-accent-50 transition-all duration-500">
+                    <Dna size={22} className="text-medical-400 group-hover:text-accent-600 transition-colors" />
                   </div>
-                  <span className="text-xs font-bold text-slate-600">{disease}</span>
+                  <span className="text-[11px] font-bold text-medical-600 uppercase tracking-wider">{disease}</span>
                 </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Procedures Section */}
+      <section id="procedures" className="py-32 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-24 gap-10">
+            <div className="max-w-2xl">
+              <span className="text-[11px] font-bold text-accent-600 uppercase tracking-[0.3em] mb-6 block">Procedimentos</span>
+              <h3 className="text-4xl md:text-5xl font-display font-bold text-medical-900 tracking-tight">Técnicas de Vanguarda</h3>
+            </div>
+            <p className="text-medical-500 max-w-sm text-lg font-medium leading-relaxed">
+              Equipamentos de última geração para resultados superiores e menor trauma cirúrgico.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-20 items-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="relative group"
+            >
+              <div className="absolute -inset-6 bg-accent-50 rounded-apple-lg rotate-1 group-hover:rotate-0 transition-transform duration-700 -z-10" />
+              <div className="relative overflow-hidden rounded-apple shadow-2xl border-[12px] border-white">
+                <img 
+                  src="https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&q=80&w=1200" 
+                  alt="Equipe Cirúrgica em Centro Cirúrgico" 
+                  className="w-full h-full object-cover aspect-square object-top scale-105 group-hover:scale-110 transition-transform duration-1000"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-medical-900/40 to-transparent" />
+                <div className="absolute bottom-10 left-10">
+                  <p className="text-white font-display font-bold text-3xl tracking-tight">Excelência Cirúrgica</p>
+                  <p className="text-accent-100 text-sm font-bold uppercase tracking-[0.2em] mt-1">Tecnologia e Precisão</p>
+                </div>
+              </div>
+            </motion.div>
+
+            <div className="grid sm:grid-cols-2 gap-8">
+              {[
+                { title: 'Hérnias', desc: 'Correção de hérnias inguinais e umbilicais com reforço de tela e mínima incisão.' },
+                { title: 'Vesícula Biliar', desc: 'Colecistectomia laparoscópica: padrão ouro com rápida alta hospitalar.' },
+                { title: 'Aparelho Digestivo', desc: 'Cirurgias de estômago e intestino com foco em oncologia e funcionalidade.' },
+                { title: 'Minimamente Invasivas', desc: 'Vídeocirurgia avançada para menor dor pós-operatória e estética preservada.' },
+              ].map((proc, index) => (
+                <motion.div 
+                  key={proc.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                  className="bg-medical-50/50 p-8 rounded-apple border border-medical-100 hover:border-accent-200 hover:bg-white hover:shadow-xl hover:shadow-medical-200/30 transition-all duration-500"
+                >
+                  <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center mb-6 shadow-sm">
+                    <CheckCircle2 size={20} className="text-accent-600" />
+                  </div>
+                  <h4 className="text-lg font-bold text-medical-900 mb-3 tracking-tight">{proc.title}</h4>
+                  <p className="text-medical-500 text-sm leading-relaxed font-medium">
+                    {proc.desc}
+                  </p>
+                </motion.div>
               ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Procedures Section */}
-      <section id="procedures" className="py-24 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-            <div className="max-w-2xl">
-              <h2 className="text-sm font-bold text-primary-600 uppercase tracking-[0.2em] mb-4">Procedimentos</h2>
-              <h3 className="text-4xl font-display font-bold text-slate-900">Cirurgias e Técnicas Avançadas</h3>
-            </div>
-            <p className="text-slate-500 max-w-sm">
-              Utilizamos as tecnologias mais recentes para garantir procedimentos seguros e minimamente invasivos.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { title: 'Hérnias', img: 'https://picsum.photos/seed/hernia/600/400' },
-              { title: 'Vesícula Biliar', img: 'https://picsum.photos/seed/gallbladder/600/400' },
-              { title: 'Aparelho Digestivo', img: 'https://picsum.photos/seed/digestive/600/400' },
-              { title: 'Minimamente Invasivas', img: 'https://picsum.photos/seed/minimally-invasive/600/400' },
-            ].map((proc, index) => (
-              <motion.div 
-                key={proc.title}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="relative h-80 rounded-3xl overflow-hidden group cursor-pointer"
-              >
-                <img 
-                  src={proc.img} 
-                  alt={proc.title} 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                <div className="absolute bottom-8 left-8 right-8">
-                  <h4 className="text-xl font-bold text-white mb-2">{proc.title}</h4>
-                  <div className="flex items-center gap-2 text-primary-400 font-bold text-xs uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">
-                    Saiba Mais <ChevronRight size={14} />
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Differentials Section */}
-      <section id="differentials" className="py-24 bg-primary-900 text-white overflow-hidden relative">
+      <section id="differentials" className="py-32 bg-medical-900 text-white overflow-hidden relative">
         <motion.div 
           style={{ y: diffBgY }}
-          className="absolute top-0 right-0 w-1/2 h-full opacity-10"
+          className="absolute top-0 right-0 w-full h-full opacity-10"
         >
           <img 
-            src="https://picsum.photos/seed/tech-medical/1000/1000" 
-            alt="Tecnologia" 
+            src="https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=1920" 
+            alt="Tecnologia Médica Avançada" 
             className="w-full h-full object-cover"
             referrerPolicy="no-referrer"
           />
         </motion.div>
         
         <div className="container mx-auto px-6 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="grid lg:grid-cols-2 gap-24 items-center">
             <div>
-              <h2 className="text-sm font-bold text-primary-400 uppercase tracking-[0.2em] mb-4">Diferenciais</h2>
-              <h3 className="text-4xl font-display font-bold mb-8 leading-tight">
-                Por que escolher o Dr. Honório Onofre?
+              <span className="text-[11px] font-bold text-accent-500 uppercase tracking-[0.3em] mb-6 block">Diferenciais</span>
+              <h3 className="text-4xl md:text-5xl font-display font-bold mb-12 leading-tight tracking-tight">
+                Por que confiar sua saúde <br /> ao Dr. Honório?
               </h3>
               
-              <div className="space-y-8">
+              <div className="space-y-10">
                 {[
-                  { title: 'Atendimento Humanizado', desc: 'Foco total no bem-estar e acolhimento do paciente.', icon: <HeartPulse /> },
-                  { title: 'Técnicas Minimamente Invasivas', desc: 'Menos dor, cicatrizes menores e recuperação rápida.', icon: <Stethoscope /> },
-                  { title: 'Segurança e Precisão', desc: 'Protocolos rigorosos e tecnologia cirúrgica de ponta.', icon: <ShieldCheck /> },
-                  { title: 'Estrutura Moderna', desc: 'Atuação nos melhores hospitais com suporte completo.', icon: <Activity /> },
+                  { title: 'Atendimento Humanizado', desc: 'Escuta ativa e acolhimento em todas as etapas do tratamento.', icon: <HeartPulse /> },
+                  { title: 'Mínima Invasão', desc: 'Técnicas que priorizam a rápida recuperação e menor desconforto.', icon: <Stethoscope /> },
+                  { title: 'Segurança Absoluta', desc: 'Protocolos internacionais de segurança do paciente e precisão cirúrgica.', icon: <ShieldCheck /> },
+                  { title: 'Suporte Completo', desc: 'Acompanhamento pré e pós-operatório dedicado e transparente.', icon: <Activity /> },
                 ].map((item, index) => (
                   <motion.div 
                     key={item.title}
                     initial={{ opacity: 0, x: -30 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
-                    className="flex gap-6"
+                    transition={{ delay: index * 0.1, duration: 0.6 }}
+                    className="flex gap-8 group"
                   >
-                    <div className="bg-white/10 p-4 rounded-2xl text-primary-400 shrink-0">
+                    <div className="bg-white/5 p-5 rounded-2xl text-accent-500 shrink-0 group-hover:bg-accent-500 group-hover:text-white transition-all duration-500 border border-white/10">
                       {item.icon}
                     </div>
                     <div>
-                      <h4 className="text-xl font-bold mb-2">{item.title}</h4>
-                      <p className="text-primary-100/70 leading-relaxed">{item.desc}</p>
+                      <h4 className="text-xl font-bold mb-3 tracking-tight">{item.title}</h4>
+                      <p className="text-medical-200/60 leading-relaxed font-medium">{item.desc}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -432,34 +594,35 @@ export default function App() {
             
             <div className="hidden lg:block">
               <motion.div 
-                initial={{ opacity: 0, scale: 0.8 }}
+                initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                className="bg-white/5 backdrop-blur-sm p-12 rounded-[40px] border border-white/10"
+                transition={{ duration: 1 }}
+                className="bg-white/5 backdrop-blur-md p-16 rounded-apple-lg border border-white/10 shadow-2xl"
               >
-                <div className="grid grid-cols-2 gap-8">
-                  <div className="space-y-8">
-                    <div className="bg-white/10 p-8 rounded-3xl">
-                      <Clock className="text-primary-400 mb-4" size={32} />
-                      <p className="text-2xl font-bold">Recuperação</p>
-                      <p className="text-primary-200 text-sm">Mais rápida e segura</p>
+                <div className="grid grid-cols-2 gap-10">
+                  <div className="space-y-10">
+                    <div className="bg-white/5 p-10 rounded-apple border border-white/5 hover:bg-white/10 transition-colors duration-500">
+                      <Clock className="text-accent-500 mb-6" size={36} />
+                      <p className="text-2xl font-bold tracking-tight">Agilidade</p>
+                      <p className="text-medical-300 text-xs font-bold uppercase tracking-widest mt-2">Alta precoce</p>
                     </div>
-                    <div className="bg-primary-600 p-8 rounded-3xl">
-                      <CheckCircle2 className="text-white mb-4" size={32} />
-                      <p className="text-2xl font-bold">Precisão</p>
-                      <p className="text-white/80 text-sm">Alta tecnologia</p>
+                    <div className="bg-accent-600 p-10 rounded-apple shadow-xl shadow-accent-600/20">
+                      <CheckCircle2 className="text-white mb-6" size={36} />
+                      <p className="text-2xl font-bold tracking-tight">Precisão</p>
+                      <p className="text-white/80 text-xs font-bold uppercase tracking-widest mt-2">Tecnologia 4K</p>
                     </div>
                   </div>
-                  <div className="pt-12 space-y-8">
-                    <div className="bg-white/10 p-8 rounded-3xl">
-                      <ShieldCheck className="text-primary-400 mb-4" size={32} />
-                      <p className="text-2xl font-bold">Segurança</p>
-                      <p className="text-primary-200 text-sm">Protocolos internacionais</p>
+                  <div className="pt-16 space-y-10">
+                    <div className="bg-white/5 p-10 rounded-apple border border-white/5 hover:bg-white/10 transition-colors duration-500">
+                      <ShieldCheck className="text-accent-500 mb-6" size={36} />
+                      <p className="text-2xl font-bold tracking-tight">Segurança</p>
+                      <p className="text-medical-300 text-xs font-bold uppercase tracking-widest mt-2">Risco Zero</p>
                     </div>
-                    <div className="bg-white/10 p-8 rounded-3xl">
-                      <HeartPulse className="text-primary-400 mb-4" size={32} />
-                      <p className="text-2xl font-bold">Cuidado</p>
-                      <p className="text-primary-200 text-sm">Humanizado</p>
+                    <div className="bg-white/5 p-10 rounded-apple border border-white/5 hover:bg-white/10 transition-colors duration-500">
+                      <HeartPulse className="text-accent-500 mb-6" size={36} />
+                      <p className="text-2xl font-bold tracking-tight">Cuidado</p>
+                      <p className="text-medical-300 text-xs font-bold uppercase tracking-widest mt-2">Personalizado</p>
                     </div>
                   </div>
                 </div>
@@ -470,156 +633,232 @@ export default function App() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-24 bg-white">
+      <section id="contact" className="py-32 bg-white relative">
         <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-16">
-            <div>
-              <h2 className="text-sm font-bold text-primary-600 uppercase tracking-[0.2em] mb-4">Contato</h2>
-              <h3 className="text-4xl font-display font-bold text-slate-900 mb-8">Agende sua Consulta</h3>
-              
-              <div className="space-y-8 mb-12">
-                <div className="flex items-start gap-6">
-                  <div className="bg-primary-50 p-4 rounded-2xl text-primary-600">
-                    <MapPin size={24} />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900 mb-1">Endereço</h4>
-                    <p className="text-slate-600">Av. das Américas, 500 - Bloco 4, Sala 201<br />Barra da Tijuca, Rio de Janeiro - RJ</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-6">
-                  <div className="bg-primary-50 p-4 rounded-2xl text-primary-600">
-                    <Phone size={24} />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900 mb-1">Telefone</h4>
-                    <p className="text-slate-600">(21) 3456-7890</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-6">
-                  <div className="bg-primary-50 p-4 rounded-2xl text-primary-600">
-                    <Clock size={24} />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900 mb-1">Horário de Atendimento</h4>
-                    <p className="text-slate-600">Segunda a Sexta: 08:00 às 18:00</p>
-                  </div>
-                </div>
-              </div>
-              
-              <a 
-                href="https://wa.me/5521999999999" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 bg-[#25D366] text-white px-8 py-4 rounded-full font-bold text-lg hover:shadow-xl transition-all hover:-translate-y-1"
-              >
-                <MessageCircle size={24} />
-                Agendar via WhatsApp
-              </a>
-            </div>
-            
-            <motion.div 
+          <div className="grid lg:grid-cols-2 gap-24">
+            <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="bg-slate-50 p-10 rounded-[40px] border border-slate-100 shadow-sm"
+              transition={{ duration: 0.8 }}
             >
-              <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Nome Completo</label>
-                    <input 
-                      type="text" 
-                      placeholder="Seu nome"
-                      className="w-full bg-white border border-slate-200 rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition-all"
-                    />
+              <span className="text-[11px] font-bold text-accent-600 uppercase tracking-[0.3em] mb-6 block">Contato e Localização</span>
+              <h3 className="text-4xl md:text-5xl font-display font-bold text-medical-900 mb-10 tracking-tight">Agende sua Consulta</h3>
+              <p className="text-medical-600 text-lg mb-12 font-medium leading-relaxed">
+                Atendimento especializado em diversas cidades do Litoral Norte e Vale do Paraíba.
+              </p>
+              
+              <div className="space-y-10">
+                <div className="flex gap-6 group">
+                  <div className="bg-medical-50 p-4 rounded-2xl text-accent-600 group-hover:bg-medical-900 group-hover:text-white transition-all duration-500 shadow-sm">
+                    <MapPin size={24} />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Telefone</label>
-                    <input 
-                      type="tel" 
-                      placeholder="(00) 00000-0000"
-                      className="w-full bg-white border border-slate-200 rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition-all"
-                    />
+                  <div>
+                    <p className="text-xs font-bold text-medical-400 uppercase tracking-widest mb-1">Unidade Principal</p>
+                    <p className="text-medical-900 font-bold text-lg">Casa de Saúde Stella Maris</p>
+                    <p className="text-medical-500 font-medium">Av. Miguel Varlez 980, Caraguatatuba, SP</p>
                   </div>
                 </div>
-                
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">E-mail</label>
-                  <input 
-                    type="email" 
-                    placeholder="seu@email.com"
-                    className="w-full bg-white border border-slate-200 rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition-all"
-                  />
+
+                <div className="flex gap-6 group">
+                  <div className="bg-medical-50 p-4 rounded-2xl text-accent-600 group-hover:bg-medical-900 group-hover:text-white transition-all duration-500 shadow-sm">
+                    <Navigation size={24} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-medical-400 uppercase tracking-widest mb-1">Outras Cidades de Atendimento</p>
+                    <p className="text-medical-900 font-bold text-lg">Ubatuba, São Sebastião, Ilhabela</p>
+                    <p className="text-medical-500 font-medium">Consulte locais específicos via WhatsApp</p>
+                  </div>
                 </div>
-                
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Mensagem</label>
-                  <textarea 
-                    rows={4}
-                    placeholder="Como podemos ajudar?"
-                    className="w-full bg-white border border-slate-200 rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition-all resize-none"
-                  />
+
+                <div className="flex gap-6 group">
+                  <a href="tel:+5591988821349" className="bg-medical-50 p-4 rounded-2xl text-accent-600 group-hover:bg-medical-900 group-hover:text-white transition-all duration-500 shadow-sm">
+                    <Phone size={24} />
+                  </a>
+                  <div>
+                    <p className="text-xs font-bold text-medical-400 uppercase tracking-widest mb-1">Telefone e WhatsApp</p>
+                    <a href="tel:+5591988821349" className="text-medical-900 font-bold text-lg hover:text-accent-600 transition-colors">+55 91 98882-1349</a>
+                    <p className="text-medical-500 font-medium">Segunda a Sexta, das 08h às 18h</p>
+                  </div>
                 </div>
-                
-                <button 
-                  type="submit"
-                  className="w-full bg-primary-700 text-white py-5 rounded-2xl font-bold text-lg hover:bg-primary-800 transition-all shadow-lg hover:shadow-xl"
-                >
-                  Enviar Mensagem
-                </button>
-              </form>
+
+                <div className="flex gap-6 group">
+                  <a href="mailto:dr.honoriomedeiro@gmail.com" className="bg-medical-50 p-4 rounded-2xl text-accent-600 group-hover:bg-medical-900 group-hover:text-white transition-all duration-500 shadow-sm">
+                    <Mail size={24} />
+                  </a>
+                  <div>
+                    <p className="text-xs font-bold text-medical-400 uppercase tracking-widest mb-1">E-mail Profissional</p>
+                    <a href="mailto:dr.honoriomedeiro@gmail.com" className="text-medical-900 font-bold text-lg hover:text-accent-600 transition-colors">dr.honoriomedeiro@gmail.com</a>
+                    <p className="text-medical-500 font-medium">Resposta em até 24h úteis</p>
+                  </div>
+                </div>
+              </div>
+
+              <motion.a 
+                href="https://wa.me/5591988821349"
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                className="mt-14 inline-flex items-center gap-4 bg-[#25D366] text-white px-10 py-5 rounded-apple font-bold text-lg shadow-xl shadow-green-500/20 hover:shadow-green-500/40 transition-all duration-500"
+              >
+                <MessageCircle size={24} />
+                Agendar via WhatsApp
+              </motion.a>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="bg-medical-50/50 p-12 rounded-apple-lg border border-medical-100 shadow-sm relative overflow-hidden"
+            >
+              <h4 className="text-2xl font-bold text-medical-900 mb-10 tracking-tight">Envie uma Mensagem</h4>
+              
+              <AnimatePresence mode="wait">
+                {formStatus === 'success' ? (
+                  <motion.div 
+                    key="success"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className="flex flex-col items-center justify-center py-12 text-center"
+                  >
+                    <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6">
+                      <CheckCircle2 size={40} />
+                    </div>
+                    <h5 className="text-2xl font-bold text-medical-900 mb-4">Mensagem enviada!</h5>
+                    <p className="text-medical-600 font-medium">Mensagem enviada com sucesso! Em breve entraremos em contato.</p>
+                  </motion.div>
+                ) : (
+                  <form ref={formRef} className="space-y-8" onSubmit={handleFormSubmit}>
+                    <div className="grid md:grid-cols-2 gap-8">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-medical-400 uppercase tracking-widest ml-1">Nome Completo</label>
+                        <input 
+                          required
+                          name="user_name"
+                          type="text" 
+                          placeholder="Seu nome"
+                          className="w-full bg-white border border-medical-100 rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-accent-500/20 focus:border-accent-500 transition-all font-medium text-medical-900"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-medical-400 uppercase tracking-widest ml-1">Telefone</label>
+                        <input 
+                          required
+                          name="user_phone"
+                          type="tel" 
+                          placeholder="(00) 00000-0000"
+                          className="w-full bg-white border border-medical-100 rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-accent-500/20 focus:border-accent-500 transition-all font-medium text-medical-900"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-medical-400 uppercase tracking-widest ml-1">E-mail</label>
+                      <input 
+                        required
+                        name="user_email"
+                        type="email" 
+                        placeholder="seu@email.com"
+                        className="w-full bg-white border border-medical-100 rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-accent-500/20 focus:border-accent-500 transition-all font-medium text-medical-900"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-medical-400 uppercase tracking-widest ml-1">Mensagem</label>
+                      <textarea 
+                        required
+                        name="message"
+                        rows={4} 
+                        placeholder="Como podemos ajudar?"
+                        className="w-full bg-white border border-medical-100 rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-accent-500/20 focus:border-accent-500 transition-all font-medium text-medical-900 resize-none"
+                      ></textarea>
+                    </div>
+
+                    {formStatus === 'error' && (
+                      <p className="text-red-500 text-sm font-bold text-center">Ocorreu um erro ao enviar. Tente novamente mais tarde.</p>
+                    )}
+
+                    <motion.button 
+                      disabled={formStatus === 'loading'}
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
+                      className="w-full bg-medical-900 text-white py-5 rounded-apple font-bold text-lg shadow-xl shadow-medical-900/20 hover:bg-medical-800 transition-all duration-500 flex items-center justify-center gap-3 disabled:opacity-70"
+                    >
+                      {formStatus === 'loading' ? (
+                        <>
+                          <Loader2 className="animate-spin" size={20} />
+                          Enviando...
+                        </>
+                      ) : 'Enviar Mensagem'}
+                    </motion.button>
+                  </form>
+                )}
+              </AnimatePresence>
             </motion.div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-white py-16">
+      <footer className="bg-medical-50/50 pt-24 pb-12 border-t border-medical-100">
         <div className="container mx-auto px-6">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
+          <div className="grid md:grid-cols-4 gap-16 mb-20">
             <div className="col-span-2">
-              <a href="#home" className="flex flex-col mb-6">
-                <span className="font-display font-bold text-2xl tracking-tight">DR. HONÓRIO ONOFRE</span>
-                <span className="text-xs uppercase tracking-[0.2em] font-medium text-slate-400">Cirurgião Especialista</span>
-              </a>
-              <p className="text-slate-400 max-w-sm mb-6">
-                Especialista em Cirurgia Geral, Laparoscópica e de Fígado e Vias Biliares. Atendimento humanizado e tecnologia de ponta.
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-12 h-12 bg-medical-900 rounded-xl flex items-center justify-center text-white shadow-lg">
+                  <Activity size={24} />
+                </div>
+                <div>
+                  <h4 className="text-2xl font-display font-bold text-medical-900 tracking-tight">Dr. Honório Onofre</h4>
+                  <p className="text-[10px] font-bold text-accent-600 uppercase tracking-[0.3em]">Cirurgia Geral e Hepatologia</p>
+                </div>
+              </div>
+              <p className="text-medical-500 max-w-sm leading-relaxed font-medium">
+                Comprometido com a excelência médica e o cuidado humanizado, trazendo as mais avançadas técnicas cirúrgicas para o Litoral Norte.
               </p>
-              <p className="text-sm font-bold text-primary-400">CRM: 232.127 | RQE: 105.960</p>
+              <p className="text-sm font-bold text-accent-600 mt-6 tracking-widest">CRM 232.127 | RQE 105.960</p>
             </div>
             
             <div>
-              <h4 className="font-bold mb-6 text-lg">Links Rápidos</h4>
-              <ul className="space-y-4 text-slate-400">
+              <h5 className="text-sm font-bold text-medical-900 uppercase tracking-widest mb-8">Links Rápidos</h5>
+              <ul className="space-y-4">
                 {navLinks.map(link => (
                   <li key={link.name}>
-                    <a href={link.href} className="hover:text-primary-400 transition-colors">{link.name}</a>
+                    <a href={link.href} className="text-medical-500 hover:text-accent-600 transition-colors font-medium">{link.name}</a>
                   </li>
                 ))}
+                <li>
+                  <a href="tel:+5591988821349" className="text-medical-500 hover:text-accent-600 transition-colors font-medium">+55 91 98882-1349</a>
+                </li>
+                <li>
+                  <a href="mailto:dr.honoriomedeiro@gmail.com" className="text-medical-500 hover:text-accent-600 transition-colors font-medium">dr.honoriomedeiro@gmail.com</a>
+                </li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-bold mb-6 text-lg">Redes Sociais</h4>
-              <div className="flex gap-4">
-                <a href="#" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-primary-600 transition-colors">
-                  <Mail size={20} />
+              <h5 className="text-sm font-bold text-medical-900 uppercase tracking-widest mb-8">Redes Sociais</h5>
+              <div className="flex gap-6">
+                <a href="#" className="w-12 h-12 bg-white border border-medical-100 rounded-2xl flex items-center justify-center text-medical-400 hover:text-accent-600 hover:border-accent-200 transition-all duration-500 shadow-sm">
+                  <Instagram size={20} />
                 </a>
-                <a href="#" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-primary-600 transition-colors">
-                  <MessageCircle size={20} />
+                <a href="#" className="w-12 h-12 bg-white border border-medical-100 rounded-2xl flex items-center justify-center text-medical-400 hover:text-accent-600 hover:border-accent-200 transition-all duration-500 shadow-sm">
+                  <Linkedin size={20} />
+                </a>
+                <a href="#" className="w-12 h-12 bg-white border border-medical-100 rounded-2xl flex items-center justify-center text-medical-400 hover:text-accent-600 hover:border-accent-200 transition-all duration-500 shadow-sm">
+                  <Facebook size={20} />
                 </a>
               </div>
             </div>
           </div>
           
-          <div className="pt-12 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 text-slate-500 text-sm">
-            <p>© 2026 Dr. Honório Onofre de Medeiro Júnior — Todos os direitos reservados</p>
+          <div className="pt-12 border-t border-medical-100 flex flex-col md:flex-row justify-between items-center gap-8 text-medical-400 text-sm font-medium">
+            <p>© 2026 Dr. Honório Onofre de Medeiro Júnior. Todos os direitos reservados.</p>
             <div className="flex gap-8">
-              <a href="#" className="hover:text-white transition-colors">Privacidade</a>
-              <a href="#" className="hover:text-white transition-colors">Termos de Uso</a>
+              <a href="#" className="hover:text-accent-600 transition-colors">Privacidade</a>
+              <a href="#" className="hover:text-accent-600 transition-colors">Termos de Uso</a>
             </div>
           </div>
         </div>
