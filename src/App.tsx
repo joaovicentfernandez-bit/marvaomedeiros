@@ -99,190 +99,207 @@ export default function App() {
   return (
     <div className="relative min-h-screen">
       {/* Navbar */}
-      <nav 
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${
-          scrolled 
-            ? 'py-3 shadow-[0_4px_30px_rgba(0,0,0,0.03)] border-b border-white/20' 
-            : 'py-6 bg-transparent'
-        }`}
-      >
-        {/* Animated Background Lighting Effect */}
-        <div className={`absolute inset-0 transition-opacity duration-1000 ${scrolled ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="absolute inset-0 bg-white/70 backdrop-blur-xl" />
-          <div className="absolute inset-0 bg-gradient-to-r from-medical-50/30 via-white/40 to-medical-50/30" />
-          
-          {/* Soft Glow Animation */}
-          <motion.div 
-            animate={{ 
-              opacity: [0.4, 0.7, 0.4],
-              scale: [1, 1.1, 1],
-              x: ['-10%', '10%', '-10%']
-            }}
-            transition={{ 
-              duration: 10, 
-              repeat: Infinity, 
-              ease: "easeInOut" 
-            }}
-            className="absolute top-[-50%] left-[20%] w-[60%] h-[200%] bg-accent-400/10 blur-[100px] rounded-full pointer-events-none"
-          />
-        </div>
-
-        <div className="container mx-auto px-6 flex justify-between items-center relative z-10">
-          <a href="#home" className="flex flex-col group">
-            <span className="font-display font-bold text-xl tracking-tight text-medical-900 group-hover:text-accent-600 transition-colors duration-500">
-              DR. HONÓRIO ONOFRE
-            </span>
-            <span className={`text-[9px] uppercase tracking-[0.3em] font-bold transition-all duration-500 ${scrolled ? 'text-accent-500' : 'text-medical-500'}`}>
-              Cirurgião Especialista
-            </span>
-          </a>
-
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center space-x-1">
-            {navLinks.map((link) => (
-              <a 
-                key={link.name} 
-                href={link.href} 
-                className="relative px-5 py-2 text-[13px] font-bold text-medical-600 hover:text-accent-600 transition-all duration-300 tracking-wide group"
-              >
-                <span className="relative z-10">{link.name}</span>
-                <motion.span 
-                  className="absolute inset-0 bg-medical-50/50 rounded-full -z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  layoutId="navHover"
-                />
-              </a>
-            ))}
-            <div className="pl-4">
-              <a 
-                href="#contact" 
-                className="bg-medical-900 text-white px-8 py-3 rounded-full text-[13px] font-bold hover:bg-accent-600 transition-all duration-500 shadow-lg shadow-medical-900/10 hover:shadow-accent-500/20 active:scale-95"
-              >
-                Agendar Consulta
-              </a>
-            </div>
+      <nav className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 py-4 pointer-events-none">
+        <motion.div 
+          initial={false}
+          animate={{
+            backgroundColor: scrolled ? 'rgba(255, 255, 255, 0.25)' : 'rgba(255, 255, 255, 0)',
+            backdropFilter: scrolled ? 'blur(12px)' : 'blur(0px)',
+            borderRadius: scrolled ? '16px' : '0px',
+            boxShadow: scrolled ? '0 8px 32px rgba(0, 0, 0, 0.08)' : '0 0 0 rgba(0, 0, 0, 0)',
+            border: scrolled ? '1px solid rgba(255, 255, 255, 0.3)' : '1px solid rgba(255, 255, 255, 0)',
+          }}
+          transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
+          className="mx-auto max-w-7xl pointer-events-auto relative overflow-hidden"
+        >
+          {/* Animated Background Lighting Effect */}
+          <div className={`absolute inset-0 transition-opacity duration-1000 ${scrolled ? 'opacity-100' : 'opacity-0'}`}>
+            {/* Base Gradient */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#EAF6FF] via-[#D6EEFF] to-[#F8FCFF] opacity-40" />
+            
+            {/* Soft Glow Animation - Moving slowly */}
+            <motion.div 
+              animate={{ 
+                x: ['-30%', '30%', '-30%'],
+                y: ['-20%', '20%', '-20%'],
+                opacity: [0.2, 0.5, 0.2],
+              }}
+              transition={{ 
+                duration: 20, 
+                repeat: Infinity, 
+                ease: "linear" 
+              }}
+              className="absolute top-[-50%] left-[-20%] w-[140%] h-[200%] bg-[radial-gradient(circle_at_center,rgba(14,165,233,0.2)_0%,transparent_60%)] blur-[80px] pointer-events-none"
+            />
           </div>
 
-          {/* Mobile Menu Toggle */}
-          <button 
-            className="md:hidden text-medical-900 p-2 relative z-50" 
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            <AnimatePresence mode="wait">
-              {isMenuOpen ? (
-                <motion.div
-                  key="close"
-                  initial={{ rotate: -90, opacity: 0 }}
-                  animate={{ rotate: 0, opacity: 1 }}
-                  exit={{ rotate: 90, opacity: 0 }}
-                >
-                  <X size={24} />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="menu"
-                  initial={{ rotate: 90, opacity: 0 }}
-                  animate={{ rotate: 0, opacity: 1 }}
-                  exit={{ rotate: -90, opacity: 0 }}
-                >
-                  <Menu size={24} />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </button>
-        </div>
+          <div className={`px-6 flex justify-between items-center relative z-10 transition-all duration-500 ${scrolled ? 'py-3' : 'py-5'}`}>
+            <a href="#home" className="flex flex-col group">
+              <span className="font-display font-bold text-lg sm:text-xl tracking-tight text-medical-900 group-hover:text-accent-600 transition-colors duration-500">
+                DR. HONÓRIO ONOFRE
+              </span>
+              <span className={`text-[8px] sm:text-[9px] uppercase tracking-[0.3em] font-bold transition-all duration-500 ${scrolled ? 'text-accent-500' : 'text-medical-500'}`}>
+                Cirurgião Especialista
+              </span>
+            </a>
 
-        {/* Mobile Nav */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div 
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute top-0 left-0 right-0 bg-white/95 backdrop-blur-2xl border-b border-medical-100 md:hidden overflow-hidden z-40 pt-24"
-            >
-              <div className="flex flex-col p-8 space-y-4">
-                {navLinks.map((link, index) => (
-                  <motion.a 
-                    key={link.name} 
-                    href={link.href} 
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    onClick={() => setIsMenuOpen(false)}
-                    className="text-2xl font-bold text-medical-900 hover:text-accent-600 transition-colors py-2 border-b border-medical-50 last:border-0"
-                  >
-                    {link.name}
-                  </motion.a>
-                ))}
-                <motion.a
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  href="#contact"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="mt-6 bg-medical-900 text-white p-5 rounded-2xl text-center font-bold text-lg shadow-xl shadow-medical-900/20"
+            {/* Desktop Nav */}
+            <div className="hidden md:flex items-center space-x-1">
+              {navLinks.map((link) => (
+                <a 
+                  key={link.name} 
+                  href={link.href} 
+                  className="relative px-4 py-2 text-[13px] font-bold text-medical-600 hover:text-accent-600 transition-all duration-300 tracking-wide group"
+                >
+                  <span className="relative z-10">{link.name}</span>
+                  <motion.span 
+                    className="absolute inset-0 bg-accent-50/50 rounded-full -z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    layoutId="navHover"
+                  />
+                </a>
+              ))}
+              <div className="pl-4">
+                <a 
+                  href="#contact" 
+                  className="bg-medical-900 text-white px-7 py-2.5 rounded-full text-[13px] font-bold hover:bg-accent-600 transition-all duration-500 shadow-lg shadow-medical-900/10 hover:shadow-accent-500/20 active:scale-95"
                 >
                   Agendar Consulta
-                </motion.a>
+                </a>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+
+            {/* Mobile Menu Toggle */}
+            <button 
+              className="md:hidden text-medical-900 p-2 relative z-50" 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <AnimatePresence mode="wait">
+                {isMenuOpen ? (
+                  <motion.div
+                    key="close"
+                    initial={{ rotate: -90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: 90, opacity: 0 }}
+                  >
+                    <X size={24} />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="menu"
+                    initial={{ rotate: 90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: -90, opacity: 0 }}
+                  >
+                    <Menu size={24} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </button>
+          </div>
+
+          {/* Mobile Nav */}
+          <AnimatePresence>
+            {isMenuOpen && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="bg-white/95 backdrop-blur-2xl border-t border-medical-100 md:hidden overflow-hidden relative z-40"
+              >
+                <div className="flex flex-col p-8 space-y-4">
+                  {navLinks.map((link, index) => (
+                    <motion.a 
+                      key={link.name} 
+                      href={link.href} 
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="text-xl font-bold text-medical-900 hover:text-accent-600 transition-colors py-2 border-b border-medical-50 last:border-0"
+                    >
+                      {link.name}
+                    </motion.a>
+                  ))}
+                  <motion.a
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    href="#contact"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="mt-6 bg-medical-900 text-white p-4 rounded-xl text-center font-bold text-lg shadow-xl shadow-medical-900/20"
+                  >
+                    Agendar Consulta
+                  </motion.a>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
       </nav>
 
       {/* Hero Section */}
-      <section id="home" className="relative h-screen flex items-center justify-center overflow-hidden bg-medical-50">
-        <motion.div 
-          style={{ y: heroY, opacity: heroOpacity }}
-          className="absolute inset-0 z-0"
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-medical-50/20 via-white/40 to-white z-10" />
-          <img 
-            src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=1920" 
-            alt="Ambiente Médico Moderno" 
-            className="w-full h-full object-cover opacity-40"
-            referrerPolicy="no-referrer"
-          />
-        </motion.div>
+      <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#F2F9FF] via-[#EAF6FF] to-white pt-20">
+        {/* Ambient Glows */}
+        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-accent-200/20 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-medical-200/20 blur-[120px] rounded-full pointer-events-none" />
 
-        <div className="container mx-auto px-6 relative z-20 text-center">
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-4xl mx-auto"
-          >
-            <motion.span 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              className="inline-block px-5 py-1.5 bg-accent-50 text-accent-700 rounded-full text-[11px] font-bold tracking-[0.2em] uppercase mb-8"
+        <div className="container mx-auto px-6 relative z-20">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <motion.div 
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+              className="text-left"
             >
-              Excelência e Inovação Cirúrgica
-            </motion.span>
-            <h1 className="text-5xl md:text-8xl font-display font-bold text-medical-900 leading-[1.05] mb-8 tracking-tight">
-              Dr. Honório <br className="hidden md:block" /> Onofre
-            </h1>
-            <p className="text-lg md:text-2xl text-medical-600 mb-12 leading-relaxed max-w-2xl mx-auto font-medium">
-              Cirurgia Geral, Laparoscópica e Especialista em Fígado e Vias Biliares.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-5 justify-center">
-              <a 
-                href="#contact" 
-                className="bg-medical-900 text-white px-10 py-4 rounded-full text-base font-bold hover:bg-accent-600 transition-all duration-500 shadow-xl hover:shadow-accent-500/20 flex items-center justify-center gap-3 active:scale-95"
+              <motion.span 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 }}
+                className="inline-block px-5 py-1.5 bg-accent-50 text-accent-700 rounded-full text-[11px] font-bold tracking-[0.2em] uppercase mb-8"
               >
-                Agendar Consulta
-                <ChevronRight size={18} />
-              </a>
-              <a 
-                href="#specialties" 
-                className="glass text-medical-800 px-10 py-4 rounded-full text-base font-bold hover:bg-white transition-all duration-500 flex items-center justify-center active:scale-95"
-              >
-                Ver Especialidades
-              </a>
-            </div>
-          </motion.div>
+                Excelência e Inovação Cirúrgica
+              </motion.span>
+              <h1 className="text-5xl md:text-7xl xl:text-8xl font-display font-bold text-medical-900 leading-[1.05] mb-8 tracking-tight">
+                Dr. Honório <br /> Onofre
+              </h1>
+              <p className="text-lg md:text-xl text-medical-600 mb-12 leading-relaxed max-w-xl font-medium">
+                Cirurgia Geral, Laparoscópica e Especialista em Fígado e Vias Biliares. Medicina de precisão com foco no acolhimento humano.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-5">
+                <a 
+                  href="#contact" 
+                  className="bg-medical-900 text-white px-10 py-4 rounded-full text-base font-bold hover:bg-accent-600 transition-all duration-500 shadow-xl shadow-medical-900/10 hover:shadow-accent-500/20 flex items-center justify-center gap-3 active:scale-95"
+                >
+                  Agendar Consulta
+                  <ChevronRight size={18} />
+                </a>
+                <a 
+                  href="#about" 
+                  className="glass-light text-medical-800 px-10 py-4 rounded-full text-base font-bold hover:bg-white transition-all duration-500 flex items-center justify-center active:scale-95 border border-white/40 shadow-sm"
+                >
+                  Conheça o Doutor
+                </a>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 1.2, delay: 0.3 }}
+              className="relative hidden lg:block"
+            >
+              <div className="absolute inset-0 bg-gradient-to-tr from-accent-100/30 to-transparent rounded-apple-lg blur-2xl -z-10" />
+              <div className="relative p-4 bg-white/40 backdrop-blur-sm rounded-[40px] border border-white/60 shadow-2xl overflow-hidden">
+                <img 
+                  src="input_file_0.png" 
+                  alt="Dr. Honório Onofre" 
+                  className="w-full h-auto rounded-[32px] shadow-inner"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+            </motion.div>
+          </div>
         </div>
 
         {/* Scroll Indicator */}
@@ -304,7 +321,8 @@ export default function App() {
 
       {/* About Section */}
       <section id="about" className="py-32 bg-white relative overflow-hidden">
-        <div className="container mx-auto px-6">
+        <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-[#F2F9FF] to-transparent opacity-50" />
+        <div className="container mx-auto px-6 relative z-10">
           <div className="grid lg:grid-cols-2 gap-24 items-center">
             <motion.div 
               initial={{ opacity: 0, x: -40 }}
@@ -314,14 +332,14 @@ export default function App() {
               className="relative"
             >
               <div className="absolute -top-10 -left-10 w-64 h-64 bg-accent-50 rounded-full blur-3xl opacity-60 -z-10" />
-              <div className="relative overflow-hidden rounded-apple-lg shadow-2xl group">
+              <div className="relative overflow-hidden rounded-apple-lg shadow-2xl group border border-white/40">
                 <img 
                   src="input_file_0.png" 
                   alt="Dr. Honório Onofre" 
                   className="w-full object-cover aspect-[4/5] object-top scale-105 group-hover:scale-110 transition-transform duration-1000"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute bottom-0 left-0 right-0 glass p-8 m-6 rounded-apple shadow-lg">
+                <div className="absolute bottom-0 left-0 right-0 bg-white/40 backdrop-blur-md p-8 m-6 rounded-apple shadow-lg border border-white/60">
                   <div className="flex items-center gap-5">
                     <div className="bg-medical-900 p-3.5 rounded-2xl text-white shadow-lg">
                       <ShieldCheck size={24} />
@@ -373,7 +391,7 @@ export default function App() {
       </section>
 
       {/* Specialties Section */}
-      <section id="specialties" className="py-32 bg-medical-50/50">
+      <section id="specialties" className="py-32 bg-gradient-to-b from-white via-[#F2F9FF] to-white">
         <div className="container mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-20">
             <span className="text-[11px] font-bold text-accent-600 uppercase tracking-[0.3em] mb-6 block">Especialidades</span>
@@ -389,29 +407,25 @@ export default function App() {
                 title: 'Cirurgia do Fígado', 
                 desc: 'Tratamento de tumores, cistos e transplantes hepáticos.', 
                 icon: <Activity className="w-7 h-7" />,
-                items: ['Transplante hepático', 'Ressecções tumorais'],
-                img: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=400'
+                items: ['Transplante hepático', 'Ressecções tumorais']
               },
               { 
                 title: 'Vesícula Biliar', 
                 desc: 'Cirurgias para cálculos e doenças inflamatórias.', 
                 icon: <Syringe className="w-7 h-7" />,
-                items: ['Colecistectomia', 'Vias biliares'],
-                img: 'https://images.unsplash.com/photo-1579154235602-3c2c2446117b?auto=format&fit=crop&q=80&w=400'
+                items: ['Colecistectomia', 'Vias biliares']
               },
               { 
                 title: 'Pâncreas', 
                 desc: 'Intervenções oncológicas e tratamentos complexos.', 
                 icon: <Microscope className="w-7 h-7" />,
-                items: ['Duodenopancreatectomia', 'Cistos'],
-                img: 'https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?auto=format&fit=crop&q=80&w=400'
+                items: ['Duodenopancreatectomia', 'Cistos']
               },
               { 
                 title: 'Hepatologia', 
                 desc: 'Acompanhamento clínico de doenças do fígado.', 
                 icon: <HeartPulse className="w-7 h-7" />,
-                items: ['Esteatose', 'Cirrose', 'Hepatites'],
-                img: 'https://images.unsplash.com/photo-1505751172107-129658a2d716?auto=format&fit=crop&q=80&w=400'
+                items: ['Esteatose', 'Cirrose', 'Hepatites']
               }
             ].map((spec, index) => (
               <motion.div 
@@ -420,31 +434,21 @@ export default function App() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1, duration: 0.6 }}
-                className="bg-white p-0 rounded-apple shadow-sm border border-medical-100 hover:shadow-xl hover:shadow-medical-200/50 transition-all duration-500 group overflow-hidden"
+                className="bg-white/40 backdrop-blur-md p-10 rounded-apple shadow-sm border border-white/60 hover:shadow-xl hover:shadow-medical-200/30 transition-all duration-500 group overflow-hidden"
               >
-                <div className="h-48 overflow-hidden">
-                  <img 
-                    src={spec.img} 
-                    alt={spec.title} 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    referrerPolicy="no-referrer"
-                  />
+                <div className="bg-medical-50 text-accent-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-medical-900 group-hover:text-white transition-all duration-500 shadow-sm">
+                  {spec.icon}
                 </div>
-                <div className="p-10">
-                  <div className="bg-medical-50 text-accent-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-medical-900 group-hover:text-white transition-all duration-500 shadow-sm">
-                    {spec.icon}
-                  </div>
-                  <h4 className="text-xl font-bold text-medical-900 mb-4 tracking-tight">{spec.title}</h4>
-                  <p className="text-medical-500 mb-8 text-sm leading-relaxed font-medium">{spec.desc}</p>
-                  <ul className="space-y-3">
-                    {spec.items.map(item => (
-                      <li key={item} className="flex items-center gap-3 text-[11px] font-bold text-medical-700 uppercase tracking-widest">
-                        <div className="w-1.5 h-1.5 bg-accent-500 rounded-full" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <h4 className="text-xl font-bold text-medical-900 mb-4 tracking-tight">{spec.title}</h4>
+                <p className="text-medical-500 mb-8 text-sm leading-relaxed font-medium">{spec.desc}</p>
+                <ul className="space-y-3">
+                  {spec.items.map(item => (
+                    <li key={item} className="flex items-center gap-3 text-[11px] font-bold text-medical-700 uppercase tracking-widest">
+                      <div className="w-1.5 h-1.5 bg-accent-500 rounded-full" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </motion.div>
             ))}
           </div>
@@ -478,84 +482,55 @@ export default function App() {
       </section>
 
       {/* Procedures Section */}
-      <section id="procedures" className="py-32 bg-white">
-        <div className="container mx-auto px-6">
+      <section id="procedures" className="py-32 bg-white relative overflow-hidden">
+        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#F2F9FF] to-transparent opacity-30" />
+        <div className="container mx-auto px-6 relative z-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-24 gap-10">
             <div className="max-w-2xl">
               <span className="text-[11px] font-bold text-accent-600 uppercase tracking-[0.3em] mb-6 block">Procedimentos</span>
               <h3 className="text-4xl md:text-5xl font-display font-bold text-medical-900 tracking-tight">Técnicas de Vanguarda</h3>
             </div>
-            <p className="text-medical-500 max-w-sm text-lg font-medium leading-relaxed">
+            <p className="text-medical-600 max-w-sm text-lg font-medium leading-relaxed">
               Equipamentos de última geração para resultados superiores e menor trauma cirúrgico.
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-20 items-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="relative group"
-            >
-              <div className="absolute -inset-6 bg-accent-50 rounded-apple-lg rotate-1 group-hover:rotate-0 transition-transform duration-700 -z-10" />
-              <div className="relative overflow-hidden rounded-apple shadow-2xl border-[12px] border-white">
-                <img 
-                  src="https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&q=80&w=1200" 
-                  alt="Equipe Cirúrgica em Centro Cirúrgico" 
-                  className="w-full h-full object-cover aspect-square object-top scale-105 group-hover:scale-110 transition-transform duration-1000"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-medical-900/40 to-transparent" />
-                <div className="absolute bottom-10 left-10">
-                  <p className="text-white font-display font-bold text-3xl tracking-tight">Excelência Cirúrgica</p>
-                  <p className="text-accent-100 text-sm font-bold uppercase tracking-[0.2em] mt-1">Tecnologia e Precisão</p>
+          <div className="grid lg:grid-cols-3 gap-8">
+            {[
+              { title: 'Hérnias', desc: 'Correção de hérnias inguinais e umbilicais com reforço de tela e mínima incisão.' },
+              { title: 'Vesícula Biliar', desc: 'Colecistectomia laparoscópica: padrão ouro com rápida alta hospitalar.' },
+              { title: 'Aparelho Digestivo', desc: 'Cirurgias de estômago e intestino com foco em oncologia e funcionalidade.' },
+              { title: 'Minimamente Invasivas', desc: 'Vídeocirurgia avançada para menor dor pós-operatória e estética preservada.' },
+              { title: 'Cirurgia Hepática', desc: 'Procedimentos complexos no fígado com tecnologia de ponta e precisão.' },
+              { title: 'Vias Biliares', desc: 'Tratamento de obstruções e doenças das vias biliares com mínima invasão.' },
+            ].map((proc, index) => (
+              <motion.div 
+                key={proc.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1, duration: 0.6 }}
+                className="bg-white/60 backdrop-blur-sm p-10 rounded-apple border border-white/80 hover:border-accent-200 hover:bg-white hover:shadow-xl hover:shadow-medical-200/20 transition-all duration-500 group"
+              >
+                <div className="w-12 h-12 bg-medical-50 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-medical-900 group-hover:text-white transition-all duration-500 shadow-sm">
+                  <CheckCircle2 size={24} />
                 </div>
-              </div>
-            </motion.div>
-
-            <div className="grid sm:grid-cols-2 gap-8">
-              {[
-                { title: 'Hérnias', desc: 'Correção de hérnias inguinais e umbilicais com reforço de tela e mínima incisão.' },
-                { title: 'Vesícula Biliar', desc: 'Colecistectomia laparoscópica: padrão ouro com rápida alta hospitalar.' },
-                { title: 'Aparelho Digestivo', desc: 'Cirurgias de estômago e intestino com foco em oncologia e funcionalidade.' },
-                { title: 'Minimamente Invasivas', desc: 'Vídeocirurgia avançada para menor dor pós-operatória e estética preservada.' },
-              ].map((proc, index) => (
-                <motion.div 
-                  key={proc.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1, duration: 0.6 }}
-                  className="bg-medical-50/50 p-8 rounded-apple border border-medical-100 hover:border-accent-200 hover:bg-white hover:shadow-xl hover:shadow-medical-200/30 transition-all duration-500"
-                >
-                  <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center mb-6 shadow-sm">
-                    <CheckCircle2 size={20} className="text-accent-600" />
-                  </div>
-                  <h4 className="text-lg font-bold text-medical-900 mb-3 tracking-tight">{proc.title}</h4>
-                  <p className="text-medical-500 text-sm leading-relaxed font-medium">
-                    {proc.desc}
-                  </p>
-                </motion.div>
-              ))}
-            </div>
+                <h4 className="text-xl font-bold text-medical-900 mb-4 tracking-tight">{proc.title}</h4>
+                <p className="text-medical-500 text-sm leading-relaxed font-medium">
+                  {proc.desc}
+                </p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Differentials Section */}
       <section id="differentials" className="py-32 bg-medical-900 text-white overflow-hidden relative">
-        <motion.div 
-          style={{ y: diffBgY }}
-          className="absolute top-0 right-0 w-full h-full opacity-10"
-        >
-          <img 
-            src="https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=1920" 
-            alt="Tecnologia Médica Avançada" 
-            className="w-full h-full object-cover"
-            referrerPolicy="no-referrer"
-          />
-        </motion.div>
+        {/* Ambient Glows */}
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-medical-800/50 via-medical-900 to-medical-950 opacity-100" />
+        <div className="absolute -top-1/4 -right-1/4 w-[600px] h-[600px] bg-accent-500/10 blur-[150px] rounded-full pointer-events-none" />
+        <div className="absolute -bottom-1/4 -left-1/4 w-[600px] h-[600px] bg-medical-500/10 blur-[150px] rounded-full pointer-events-none" />
         
         <div className="container mx-auto px-6 relative z-10">
           <div className="grid lg:grid-cols-2 gap-24 items-center">
@@ -712,7 +687,7 @@ export default function App() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="bg-medical-50/50 p-12 rounded-apple-lg border border-medical-100 shadow-sm relative overflow-hidden"
+              className="bg-white/40 backdrop-blur-md p-12 rounded-apple-lg border border-white/60 shadow-sm relative overflow-hidden"
             >
               <h4 className="text-2xl font-bold text-medical-900 mb-10 tracking-tight">Envie uma Mensagem</h4>
               
@@ -802,7 +777,7 @@ export default function App() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-medical-50/50 pt-24 pb-12 border-t border-medical-100">
+      <footer className="bg-[#D6EEFF] pt-24 pb-12 border-t border-white/40">
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-4 gap-16 mb-20">
             <div className="col-span-2">
@@ -815,7 +790,7 @@ export default function App() {
                   <p className="text-[10px] font-bold text-accent-600 uppercase tracking-[0.3em]">Cirurgia Geral e Hepatologia</p>
                 </div>
               </div>
-              <p className="text-medical-500 max-w-sm leading-relaxed font-medium">
+              <p className="text-medical-600 max-w-sm leading-relaxed font-medium">
                 Comprometido com a excelência médica e o cuidado humanizado, trazendo as mais avançadas técnicas cirúrgicas para o Litoral Norte.
               </p>
               <p className="text-sm font-bold text-accent-600 mt-6 tracking-widest">CRM 232.127 | RQE 105.960</p>
@@ -826,14 +801,14 @@ export default function App() {
               <ul className="space-y-4">
                 {navLinks.map(link => (
                   <li key={link.name}>
-                    <a href={link.href} className="text-medical-500 hover:text-accent-600 transition-colors font-medium">{link.name}</a>
+                    <a href={link.href} className="text-medical-600 hover:text-accent-600 transition-colors font-medium">{link.name}</a>
                   </li>
                 ))}
                 <li>
-                  <a href="tel:+5591988821349" className="text-medical-500 hover:text-accent-600 transition-colors font-medium">+55 91 98882-1349</a>
+                  <a href="tel:+5591988821349" className="text-medical-600 hover:text-accent-600 transition-colors font-medium">+55 91 98882-1349</a>
                 </li>
                 <li>
-                  <a href="mailto:dr.honoriomedeiro@gmail.com" className="text-medical-500 hover:text-accent-600 transition-colors font-medium">dr.honoriomedeiro@gmail.com</a>
+                  <a href="mailto:dr.honoriomedeiro@gmail.com" className="text-medical-600 hover:text-accent-600 transition-colors font-medium">dr.honoriomedeiro@gmail.com</a>
                 </li>
               </ul>
             </div>
@@ -841,24 +816,24 @@ export default function App() {
             <div>
               <h5 className="text-sm font-bold text-medical-900 uppercase tracking-widest mb-8">Redes Sociais</h5>
               <div className="flex gap-6">
-                <a href="#" className="w-12 h-12 bg-white border border-medical-100 rounded-2xl flex items-center justify-center text-medical-400 hover:text-accent-600 hover:border-accent-200 transition-all duration-500 shadow-sm">
+                <a href="#" className="w-12 h-12 bg-white border border-white/60 rounded-2xl flex items-center justify-center text-medical-400 hover:text-accent-600 hover:border-accent-200 transition-all duration-500 shadow-sm">
                   <Instagram size={20} />
                 </a>
-                <a href="#" className="w-12 h-12 bg-white border border-medical-100 rounded-2xl flex items-center justify-center text-medical-400 hover:text-accent-600 hover:border-accent-200 transition-all duration-500 shadow-sm">
+                <a href="#" className="w-12 h-12 bg-white border border-white/60 rounded-2xl flex items-center justify-center text-medical-400 hover:text-accent-600 hover:border-accent-200 transition-all duration-500 shadow-sm">
                   <Linkedin size={20} />
                 </a>
-                <a href="#" className="w-12 h-12 bg-white border border-medical-100 rounded-2xl flex items-center justify-center text-medical-400 hover:text-accent-600 hover:border-accent-200 transition-all duration-500 shadow-sm">
+                <a href="#" className="w-12 h-12 bg-white border border-white/60 rounded-2xl flex items-center justify-center text-medical-400 hover:text-accent-600 hover:border-accent-200 transition-all duration-500 shadow-sm">
                   <Facebook size={20} />
                 </a>
               </div>
             </div>
           </div>
           
-          <div className="pt-12 border-t border-medical-100 flex flex-col md:flex-row justify-between items-center gap-8 text-medical-400 text-sm font-medium">
+          <div className="pt-12 border-t border-white/20 flex flex-col md:flex-row justify-between items-center gap-8 text-medical-500 text-sm font-medium">
             <p>© 2026 Dr. Honório Onofre de Medeiro Júnior. Todos os direitos reservados.</p>
             <div className="flex gap-8">
-              <a href="#" className="hover:text-accent-600 transition-colors">Privacidade</a>
-              <a href="#" className="hover:text-accent-600 transition-colors">Termos de Uso</a>
+              <a href="#" className="hover:text-medical-900 transition-colors">Privacidade</a>
+              <a href="#" className="hover:text-medical-900 transition-colors">Termos de Uso</a>
             </div>
           </div>
         </div>
